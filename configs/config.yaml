@@ -1,0 +1,134 @@
+# =============================================================================
+# Clinical Diabetes Risk Prediction - Master Configuration
+# =============================================================================
+# All paths are relative to project root unless absolute.
+# Random seed is fixed for full reproducibility.
+
+project:
+  name: "diabetes-risk-prediction"
+  version: "1.0.0"
+  description: "Type 2 Diabetes risk prediction with calibrated probabilities and clinical decision support"
+  random_seed: 42
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  external_data: "data/external"
+  models: "models"
+  figures: "reports/figures"
+  metrics: "reports/metrics"
+  logs: "logs"
+
+data:
+  # Primary dataset: Pima Indians Diabetes Database (UCI / Kaggle)
+  # Source: https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database
+  # Originally from National Institute of Diabetes and Digestive and Kidney Diseases
+  primary_dataset: "pima"
+  pima:
+    filename: "diabetes.csv"
+    target: "Outcome"
+    features:
+      - Pregnancies
+      - Glucose
+      - BloodPressure
+      - SkinThickness
+      - Insulin
+      - BMI
+      - DiabetesPedigreeFunction
+      - Age
+    # Physiologically impossible zeros that must be treated as missing
+    zero_as_missing:
+      - Glucose
+      - BloodPressure
+      - SkinThickness
+      - Insulin
+      - BMI
+
+  # Secondary / external validation dataset (Early Stage Diabetes Risk Prediction)
+  # Source: UCI Machine Learning Repository / Kaggle
+  early_stage:
+    filename: "early_stage_diabetes.csv"
+    target: "class"
+    # Will be mapped to binary Outcome after harmonization
+
+preprocessing:
+  test_size: 0.20
+  val_size: 0.15          # of remaining train portion
+  stratify: true
+  imputation_strategy: "median"   # clinical continuous variables
+  scaling: "standard"             # StandardScaler for linear models; tree models can skip
+  remove_duplicates: true
+  outlier_method: "iqr"           # for reporting only; not removed by default
+
+feature_engineering:
+  create_bmi_category: true
+  create_age_group: true
+  create_glucose_category: true
+  create_interaction_terms: true  # Glucose x BMI, Age x BMI (clinically motivated)
+
+class_imbalance:
+  method: "class_weight"          # options: none, class_weight, smote, adasyn, borderline_smote
+  # Chosen after comparative evaluation (see notebooks/03_class_imbalance.ipynb)
+  smote_k_neighbors: 5
+  sampling_strategy: "auto"
+
+models:
+  candidates:
+    - logistic_regression
+    - random_forest
+    - extra_trees
+    - gradient_boosting
+    - xgboost
+    - lightgbm
+    - catboost
+    - svm
+  primary_model: "xgboost"        # selected after nested CV + clinical metrics
+  calibration_method: "isotonic"  # options: platt, isotonic, none
+
+cross_validation:
+  n_splits: 5
+  n_repeats: 3
+  shuffle: true
+
+optuna:
+  n_trials: 50
+  timeout: 1800                   # seconds
+  direction: "maximize"
+  metric: "roc_auc"               # primary optimization metric
+  study_name: "diabetes_risk_optuna"
+
+evaluation:
+  metrics:
+    - roc_auc
+    - pr_auc
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - specificity
+    - sensitivity
+    - mcc
+    - cohen_kappa
+    - balanced_accuracy
+    - brier_score
+  clinical_thresholds:
+    low: 0.20
+    moderate: 0.40
+    high: 0.60
+  decision_curve:
+    thresholds: [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.60, 0.70]
+
+explainability:
+  shap_sample_size: 200
+  top_k_features: 10
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  title: "Diabetes Risk Prediction API"
+  version: "1.0.0"
+  description: "Clinical decision-support API for Type 2 Diabetes risk stratification. Not a medical device."
+
+logging:
+  level: "INFO"
+  format: "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} | {message}"
