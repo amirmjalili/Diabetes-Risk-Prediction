@@ -301,7 +301,7 @@ MIT License — see [LICENSE](LICENSE).
 If you use this repository in academic work, please cite:
 
 ```
-Clinical AI Research Team. (2026). Type 2 Diabetes Risk Prediction —
+Amir Mohammad Jalili, MD. (2026). Type 2 Diabetes Risk Prediction —
 Clinical Decision-Support System (v1.0.0). GitHub repository.
 ```
 
