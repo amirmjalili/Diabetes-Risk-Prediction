@@ -6,6 +6,7 @@
 
 > **Research and educational decision-support tool only.**  
 > This system is **not** a medical device, is **not** FDA-cleared or CE-marked, and must **never** replace physician judgment or clinical guidelines.
+
 **Author:** Amir Mohammad Jalili, MD  
 **Role:** Physician & Clinical AI Portfolio Project
 ---
