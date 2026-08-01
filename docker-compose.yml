@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: diabetes-risk-api:1.0.0
+    container_name: diabetes-risk-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount trained model artifacts (persist across rebuilds)
+      - ./models:/app/models:ro
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Optional: MLflow tracking server for local experiment management
+  # mlflow:
+  #   image: ghcr.io/mlflow/mlflow:v2.14.3
+  #   ports:
+  #     - "5000:5000"
+  #   command: mlflow server --host 0.0.0.0 --port 5000
+  #   volumes:
+  #     - ./mlruns:/mlflow

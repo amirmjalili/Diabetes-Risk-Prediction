@@ -1,0 +1,37 @@
+# DVC pipeline definition (optional — run `dvc repro` after `dvc init`)
+# Tracks data lineage for reproducibility.
+
+stages:
+  load_raw:
+    cmd: python -c "from src.data.loader import download_pima_if_needed; download_pima_if_needed()"
+    outs:
+      - data/raw/diabetes.csv:
+          cache: true
+
+  quality_report:
+    cmd: python -c "
+from src.data.loader import load_pima_dataset;
+from src.data.quality import assess_data_quality;
+import json;
+df = load_pima_dataset();
+r = assess_data_quality(df);
+json.dump(r, open('reports/metrics/data_quality.json','w'), indent=2)
+"
+    deps:
+      - data/raw/diabetes.csv
+      - src/data/quality.py
+    outs:
+      - reports/metrics/data_quality.json
+
+  train:
+    cmd: python scripts/train_pipeline.py --skip-optuna
+    deps:
+      - data/raw/diabetes.csv
+      - scripts/train_pipeline.py
+      - src/
+    outs:
+      - models/best_model.joblib
+      - models/feature_names.joblib
+      - models/preprocessor.joblib
+      - reports/metrics/test_metrics.json
+      - reports/metrics/baseline_metrics.json
