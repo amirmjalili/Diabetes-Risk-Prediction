@@ -6,7 +6,8 @@
 
 > **Research and educational decision-support tool only.**  
 > This system is **not** a medical device, is **not** FDA-cleared or CE-marked, and must **never** replace physician judgment or clinical guidelines.
-
+**Author:** Amir Mohammad Jalili, MD  
+**Role:** Physician & Clinical AI Portfolio Project
 ---
 
 ## Overview
@@ -116,7 +117,7 @@ diabetes-risk-prediction/
 ## Installation
 
 ```bash
-git clone https://github.com/your-org/diabetes-risk-prediction.git
+git clone https://github.com/amirmjalili/diabetes-risk-prediction.git
 cd diabetes-risk-prediction
 
 python -m venv .venv
@@ -303,6 +304,7 @@ If you use this repository in academic work, please cite:
 ```
 Amir Mohammad Jalili, MD. (2026). Type 2 Diabetes Risk Prediction —
 Clinical Decision-Support System (v1.0.0). GitHub repository.
+https://github.com/amirmjalili/diabetes-risk-prediction
 ```
 
 ---
